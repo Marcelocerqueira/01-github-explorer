@@ -1,6 +1,7 @@
 const path = require('path') /* aqui eu consigo recuperar o path de onde está este arquivo para ficar compatível com vários SO.*/
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
+// verificaçao do erro da sitaxe
 module.exports = {
     mode: 'development',
     entry: path.resolve(__dirname, 'src', 'index.jsx'), /*entry indica onde está o arquivo principal da aplicação.*/
