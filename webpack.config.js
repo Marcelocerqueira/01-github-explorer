@@ -1,31 +1,49 @@
-const path = require('path') /* aqui eu consigo recuperar o path de onde está este arquivo para ficar compatível com vários SO.*/
+const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
 module.exports = {
-    mode: 'development',
-    entry: path.resolve(__dirname, 'src', 'index.jsx'), /*entry indica onde está o arquivo principal da aplicação.*/
-    output: { /*aqui indica onde está o arquivo de saída da aplicação.*/
+    mode: isDevelopment ? 'development' : 'production',
+    devtool: isDevelopment ? 'eval-source-map' : 'source-map',
+    entry: path.resolve(__dirname, 'src', 'index.tsx'),
+    output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js'
     },
     resolve: {
-        extensions: ['.js', '.jsx'] /*como estou usando arquivos .jsx preciso falar para aplicação que é para ler arquivos .jsx*/
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
     devServer: {
-        static: path.resolve(__dirname, 'public'),
+        contentBase: path.resolve(__dirname, 'public'),
+        hot: true,
     },
     plugins: [
+        isDevelopment && new ReactRefreshWebpackPlugin(),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, 'public', 'index.html')
         })
-    ],
+    ].filter(Boolean),
     module: {
-        rules: [ /*crio um array de regras para verificar se o arquivo é um arquivo .jsx conforme essa regra criada.*/
+        rules: [
             {
-                test: /\.jsx$/,
+                test: /\.(j|t)sx$/,
                 exclude: /node_modules/,
-                use: 'babel-loader'
-            }
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        plugins: [
+                            isDevelopment && require.resolve('react-refresh/babel')
+                        ].filter(Boolean)
+                    }
+                }
+            },
+            {
+                test: /\.scss$/,
+                exclude: /node_modules/,
+                use: ['style-loader', 'css-loader', 'sass-loader']
+            },
         ]
     }
-};
+}
